@@ -86,9 +86,9 @@ export default function Main({
 
   useEffect(() => {
     if (!showPlayins) {
-      setFilteredTasks(tasksWithoutPlayins);
-    } else {
       setFilteredTasks(tasks);
+    } else {
+      setFilteredTasks(tasksWithoutPlayins);
     }
   }, [showPlayins]);
 
