@@ -44,7 +44,7 @@ function updateDicts(
 export default async function App() {
   const response = await fetch(
     'https://api.sofascore.com/api/v1/unique-tournament/16053/season/54688/events/last/0',
-    { next: { revalidate: 60 } }
+    { next: { revalidate: 90 } }
   );
   const tournamentInfo = await response.json();
   const newStats_CHAMP_KDAs: Task[] = [];
@@ -66,7 +66,7 @@ export default async function App() {
     const promises = tournamentInfo.events.map(async (e: any) => {
       const response = await fetch(
         `https://api.sofascore.com/api/v1/event/${e.id}/esports-games`,
-        { next: { revalidate: 60 } }
+        { next: { revalidate: 90 } }
       );
       const eventData = await response.clone().json();
 
@@ -77,7 +77,7 @@ export default async function App() {
 
         const gameResponse = await fetch(
           `https://api.sofascore.com/api/v1/esports-game/${g.id}/lineups`,
-          { next: { revalidate: 60 } }
+          { next: { revalidate: 90 } }
         );
         const statisticsData = await gameResponse.clone().json();
 
