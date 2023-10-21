@@ -34,7 +34,7 @@ export function DataTableViewOptions<TData>({
       rel="noopener noreferrer"
     >
       <div className="text-muted-foreground">
-        {tournamentInfo.events.at(-1).status.finished
+        {tournamentInfo.events.at(-1).status.type === 'finished'
           ? 'Last update: '
           : 'Currently playing: '}
       </div>
