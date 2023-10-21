@@ -78,7 +78,7 @@ export default function Main({
     <main className="p-4 md:p-10 mx-auto max-w-7xl">
       {tasks && (
         <>
-          <div className="h-full flex-1 flex-col space-y-8 p-8 flex">
+          <div className="h-full flex-1 flex-col space-y-8 py-5 px-3 md:p-8 flex">
             <div className="flex items-center justify-between space-y-2">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight">
