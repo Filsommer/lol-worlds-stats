@@ -13,8 +13,12 @@ function updateDicts(
   const championName = characted.name;
   // pickrates
   if (championName in newChampionPickDict)
-    newChampionPickDict[championName as string] += 1;
-  else newChampionPickDict[championName as string] = 1;
+    newChampionPickDict[championName as string].presences += 1;
+  else
+    newChampionPickDict[championName as string] = {
+      presences: 1,
+      id: characted.id
+    };
 
   // champ kdas
   if (championName in newChampionKdaDict) {
@@ -25,8 +29,7 @@ function updateDicts(
     newChampionKdaDict[championName as string] = {
       kills: kills,
       deaths: deaths,
-      assists: assists,
-      id: characted.id
+      assists: assists
     };
   }
 
@@ -49,7 +52,9 @@ export default async function App() {
   const tournamentInfo = await response.json();
   const newStats_CHAMP_KDAs: Task[] = [];
 
-  const newChampionPickDict: { [key: string]: number } = {};
+  const newChampionPickDict: {
+    [key: string]: { presences: number; id: string };
+  } = {};
   const newChampionWinDict: {
     [key: string]: { wins: number; losses: number };
   } = {};
@@ -58,7 +63,6 @@ export default async function App() {
       kills: number;
       deaths: number;
       assists: number;
-      id: string;
     };
   } = {};
   let totalMatches = 0;
@@ -80,6 +84,32 @@ export default async function App() {
           { next: { revalidate: 90 } }
         );
         const statisticsData = await gameResponse.clone().json();
+
+        const bansResponse = await fetch(
+          `https://api.sofascore.com/api/v1/esports-game/${g.id}/bans`,
+          { next: { revalidate: 90 } }
+        );
+        const bansData = await bansResponse.clone().json();
+
+        bansData.homeTeamBans.forEach((ban: { name: string; id: string }) => {
+          if (ban.name in newChampionPickDict)
+            newChampionPickDict[ban.name as string].presences += 1;
+          else
+            newChampionPickDict[ban.name as string] = {
+              presences: 1,
+              id: ban.id
+            };
+        });
+
+        bansData.awayTeamBans.forEach((ban: { name: string; id: string }) => {
+          if (ban.name in newChampionPickDict)
+            newChampionPickDict[ban.name as string].presences += 1;
+          else
+            newChampionPickDict[ban.name as string] = {
+              presences: 1,
+              id: ban.id
+            };
+        });
 
         statisticsData.homeTeamPlayers.forEach((entry: any) => {
           updateDicts(
@@ -172,14 +202,14 @@ export default async function App() {
       const winrate =
         newChampionWinDict[key].wins /
         (newChampionWinDict[key].wins + newChampionWinDict[key].losses);
-      const pickRate = newChampionPickDict[key] / totalMatches;
+      const pickRate = newChampionPickDict[key].presences / totalMatches;
       newStats_CHAMP_KDAs.push({
-        id: value.id,
+        id: newChampionPickDict[key].id,
         name: key,
         pickRate: {
           value: pickRate,
           label: `${(pickRate * 100).toFixed(0)}%`,
-          subLabel: ` (${newChampionPickDict[key]} matches)`
+          subLabel: ` (${newChampionPickDict[key].presences} presences)`
         },
         winRate: {
           value: winrate,
