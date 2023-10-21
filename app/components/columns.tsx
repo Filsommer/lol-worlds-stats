@@ -3,13 +3,12 @@
 import { ColumnDef } from '@tanstack/react-table';
 
 import { labels, priorities, statuses } from '../data/data';
-import { Task } from '../data/schema';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { DataTableRowActions } from './data-table-row-actions';
 import { Checkbox } from '../../@/components/ui/checkbox';
 import { Badge } from '../../@/components/ui/badge';
 import { cn } from '../../lib/utils';
-import { SubTask } from '../main';
+import { SubTask, Task } from '../main';
 
 export const columns: ColumnDef<Task>[] = [
   {
