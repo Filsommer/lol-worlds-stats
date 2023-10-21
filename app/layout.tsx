@@ -1,15 +1,20 @@
 import './globals.css';
 
 import { Analytics } from '@vercel/analytics/react';
-import Nav from './nav';
-import Toast from './toast';
-import { Suspense } from 'react';
+
+import { Inter as FontSans } from 'next/font/google';
+import { cn } from '../lib/utils';
+import { ThemeProvider } from '../@/components/theme-provider';
 
 export const metadata = {
-  title: 'Next.js 13 + PlanetScale + NextAuth + Tailwind CSS',
-  description:
-    'A user admin dashboard configured with Next.js, PlanetScale, NextAuth, Tailwind CSS, TypeScript, ESLint, and Prettier.'
+  title: 'LoL Worlds 2023 Stats',
+  description: 'LoL Worlds 2023 Stats.'
 };
+
+export const fontSans = FontSans({
+  subsets: ['latin'],
+  variable: '--font-sans'
+});
 
 export default async function RootLayout({
   children
@@ -18,13 +23,13 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full bg-gray-50">
-      <body className="h-full">
-        <Suspense>
-          <Nav />
-        </Suspense>
-        {children}
+      <body
+        className={cn('min-h-screen font-sans antialiased', fontSans.variable)}
+      >
+        <ThemeProvider attribute="class" defaultTheme="system">
+          {children}
+        </ThemeProvider>
         <Analytics />
-        <Toast />
       </body>
     </html>
   );
