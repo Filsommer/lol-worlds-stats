@@ -61,7 +61,9 @@ export type SubTask = { value: number; label: string; subLabel: string };
 export type Task = {
   id: string;
   name: string;
+  presence: SubTask;
   pickRate: SubTask;
+  banRate: SubTask;
   winRate: SubTask;
   kda: SubTask;
 };

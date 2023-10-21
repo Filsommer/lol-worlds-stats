@@ -6,17 +6,20 @@ function updateDicts(
   deaths: number,
   assists: number,
   didChampionWin: boolean,
-  newChampionPickDict: any,
+  newChampionPickDict: {
+    [key: string]: { pickedCount: number; bannedCount: number; id: string };
+  },
   newChamionWinDict: any,
   newChampionKdaDict: any
 ) {
   const championName = characted.name;
   // pickrates
   if (championName in newChampionPickDict)
-    newChampionPickDict[championName as string].presences += 1;
+    newChampionPickDict[championName as string].pickedCount += 1;
   else
     newChampionPickDict[championName as string] = {
-      presences: 1,
+      pickedCount: 1,
+      bannedCount: 0,
       id: characted.id
     };
 
@@ -53,7 +56,7 @@ export default async function App() {
   const newStats_CHAMP_KDAs: Task[] = [];
 
   const newChampionPickDict: {
-    [key: string]: { presences: number; id: string };
+    [key: string]: { pickedCount: number; bannedCount: number; id: string };
   } = {};
   const newChampionWinDict: {
     [key: string]: { wins: number; losses: number };
@@ -93,20 +96,22 @@ export default async function App() {
 
         bansData.homeTeamBans.forEach((ban: { name: string; id: string }) => {
           if (ban.name in newChampionPickDict)
-            newChampionPickDict[ban.name as string].presences += 1;
+            newChampionPickDict[ban.name as string].bannedCount += 1;
           else
             newChampionPickDict[ban.name as string] = {
-              presences: 1,
+              bannedCount: 1,
+              pickedCount: 0,
               id: ban.id
             };
         });
 
         bansData.awayTeamBans.forEach((ban: { name: string; id: string }) => {
           if (ban.name in newChampionPickDict)
-            newChampionPickDict[ban.name as string].presences += 1;
+            newChampionPickDict[ban.name as string].bannedCount += 1;
           else
             newChampionPickDict[ban.name as string] = {
-              presences: 1,
+              bannedCount: 1,
+              pickedCount: 0,
               id: ban.id
             };
         });
@@ -202,14 +207,32 @@ export default async function App() {
       const winrate =
         newChampionWinDict[key].wins /
         (newChampionWinDict[key].wins + newChampionWinDict[key].losses);
-      const pickRate = newChampionPickDict[key].presences / totalMatches;
+      const pickRate = newChampionPickDict[key].pickedCount / totalMatches;
+      const banRate = newChampionPickDict[key].bannedCount / totalMatches;
+      const presence =
+        (newChampionPickDict[key].pickedCount +
+          newChampionPickDict[key].bannedCount) /
+        totalMatches;
       newStats_CHAMP_KDAs.push({
         id: newChampionPickDict[key].id,
         name: key,
+        presence: {
+          value: presence,
+          label: `${(presence * 100).toFixed(0)}%`,
+          subLabel: ` (${
+            newChampionPickDict[key].pickedCount +
+            newChampionPickDict[key].bannedCount
+          } pick/ban)`
+        },
         pickRate: {
           value: pickRate,
           label: `${(pickRate * 100).toFixed(0)}%`,
-          subLabel: ` (${newChampionPickDict[key].presences} presences)`
+          subLabel: ` (${newChampionPickDict[key].pickedCount} matches)`
+        },
+        banRate: {
+          value: banRate,
+          label: `${(banRate * 100).toFixed(0)}%`,
+          subLabel: ` (${newChampionPickDict[key].bannedCount} matches)`
         },
         winRate: {
           value: winrate,

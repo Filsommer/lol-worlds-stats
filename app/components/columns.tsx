@@ -31,6 +31,37 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false
   },
   {
+    accessorKey: 'presence',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Presences" />
+    ),
+    /** @ts-ignore */
+    sortingFn: 'myCustomSorting',
+    cell: ({ row }) => {
+      const presence = row.getValue('presence') as SubTask;
+
+      return (
+        <div className="min-w-max flex items-center mr-5">
+          <span
+            className={cn(
+              'font-medium mr-1',
+              `${
+                presence.value >= 0.5
+                  ? 'text-green-500'
+                  : presence.value >= 0.25
+                  ? 'text-secondary-foreground'
+                  : 'text-red-500'
+              }`
+            )}
+          >
+            {presence.label}
+          </span>
+          <span className="text-secondary-foreground">{presence.subLabel}</span>
+        </div>
+      );
+    }
+  },
+  {
     accessorKey: 'pickRate',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Pick/Ban rate" />
@@ -57,6 +88,28 @@ export const columns: ColumnDef<Task>[] = [
             {pickRate.label}
           </span>
           <span className="text-secondary-foreground">{pickRate.subLabel}</span>
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'banRate',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Ban rate" />
+    ),
+    /** @ts-ignore */
+    sortingFn: 'myCustomSorting',
+    cell: ({ row }) => {
+      const banRate = row.getValue('banRate') as SubTask;
+
+      return (
+        <div className="min-w-max flex items-center mr-5">
+          <span
+            className={cn('font-medium mr-1 text-secondary-foreground', '')}
+          >
+            {banRate.label}
+          </span>
+          <span className="text-secondary-foreground">{banRate.subLabel}</span>
         </div>
       );
     }
