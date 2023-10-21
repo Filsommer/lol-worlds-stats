@@ -29,7 +29,7 @@ export function DataTableViewOptions<TData>({
       className="flex flex-col md:flex-row gap-0 md:gap-1 items-center text-sm md:mt-3"
       href={`https://www.sofascore.com/nrg-esports-team-liquid/${
         tournamentInfo.events.at(-1).customId
-      }`}
+      }#${tournamentInfo.events.at(-1).id}`}
       target="_blank"
       rel="noopener noreferrer"
     >
