@@ -33,7 +33,7 @@ export const columns: ColumnDef<Task>[] = [
   {
     accessorKey: 'presence',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Presences" />
+      <DataTableColumnHeader column={column} title="Presence" />
     ),
     /** @ts-ignore */
     sortingFn: 'myCustomSorting',

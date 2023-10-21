@@ -7,10 +7,16 @@ function updateDicts(
   assists: number,
   didChampionWin: boolean,
   newChampionPickDict: {
-    [key: string]: { pickedCount: number; bannedCount: number; id: string };
+    [key: string]: {
+      pickedCount: number;
+      bannedCount: number;
+      id: string;
+      isPlayIn: boolean;
+    };
   },
   newChamionWinDict: any,
-  newChampionKdaDict: any
+  newChampionKdaDict: any,
+  isPlayInMatch: boolean
 ) {
   const championName = characted.name;
   // pickrates
@@ -20,7 +26,8 @@ function updateDicts(
     newChampionPickDict[championName as string] = {
       pickedCount: 1,
       bannedCount: 0,
-      id: characted.id
+      id: characted.id,
+      isPlayIn: isPlayInMatch
     };
 
   // champ kdas
@@ -32,7 +39,8 @@ function updateDicts(
     newChampionKdaDict[championName as string] = {
       kills: kills,
       deaths: deaths,
-      assists: assists
+      assists: assists,
+      isPlayIn: isPlayInMatch
     };
   }
 
@@ -47,16 +55,18 @@ function updateDicts(
     };
 }
 
-export default async function App() {
-  const response = await fetch(
-    'https://api.sofascore.com/api/v1/unique-tournament/16053/season/54688/events/last/0',
-    { next: { revalidate: 90 } }
-  );
-  const tournamentInfo = await response.json();
-  const newStats_CHAMP_KDAs: Task[] = [];
-
+async function fetchData(
+  tournamentInfo: any,
+  newStats_CHAMP_KDAs: Task[],
+  hidePlayins: boolean
+) {
   const newChampionPickDict: {
-    [key: string]: { pickedCount: number; bannedCount: number; id: string };
+    [key: string]: {
+      pickedCount: number;
+      bannedCount: number;
+      id: string;
+      isPlayIn: boolean;
+    };
   } = {};
   const newChampionWinDict: {
     [key: string]: { wins: number; losses: number };
@@ -70,10 +80,14 @@ export default async function App() {
   } = {};
   let totalMatches = 0;
   try {
-    const promises = tournamentInfo.events.map(async (e: any) => {
+    // swiss started october 19th
+    const events = hidePlayins
+      ? tournamentInfo.events.filter((e: any) => e.startTimestamp >= 1697691600)
+      : tournamentInfo.events;
+    const promises = events.map(async (e: any) => {
       const response = await fetch(
         `https://api.sofascore.com/api/v1/event/${e.id}/esports-games`,
-        { next: { revalidate: 90 } }
+        { next: { revalidate: 180 } }
       );
       const eventData = await response.clone().json();
 
@@ -84,15 +98,16 @@ export default async function App() {
 
         const gameResponse = await fetch(
           `https://api.sofascore.com/api/v1/esports-game/${g.id}/lineups`,
-          { next: { revalidate: 90 } }
+          { next: { revalidate: 180 } }
         );
         const statisticsData = await gameResponse.clone().json();
 
         const bansResponse = await fetch(
           `https://api.sofascore.com/api/v1/esports-game/${g.id}/bans`,
-          { next: { revalidate: 90 } }
+          { next: { revalidate: 180 } }
         );
         const bansData = await bansResponse.clone().json();
+        const isPlayInMatch = e.startTimestamp >= 1697691600; // swiss started october 19th
 
         bansData.homeTeamBans.forEach((ban: { name: string; id: string }) => {
           if (ban.name in newChampionPickDict)
@@ -101,7 +116,8 @@ export default async function App() {
             newChampionPickDict[ban.name as string] = {
               bannedCount: 1,
               pickedCount: 0,
-              id: ban.id
+              id: ban.id,
+              isPlayIn: isPlayInMatch
             };
         });
 
@@ -112,7 +128,8 @@ export default async function App() {
             newChampionPickDict[ban.name as string] = {
               bannedCount: 1,
               pickedCount: 0,
-              id: ban.id
+              id: ban.id,
+              isPlayIn: isPlayInMatch
             };
         });
 
@@ -125,7 +142,8 @@ export default async function App() {
             g.winnerCode === 1,
             newChampionPickDict,
             newChampionWinDict,
-            newChampionKdaDict
+            newChampionKdaDict,
+            isPlayInMatch
           );
         });
         statisticsData.awayTeamPlayers.forEach((entry: any) => {
@@ -137,7 +155,8 @@ export default async function App() {
             g.winnerCode === 2,
             newChampionPickDict,
             newChampionWinDict,
-            newChampionKdaDict
+            newChampionKdaDict,
+            isPlayInMatch
           );
         });
       });
@@ -162,6 +181,7 @@ export default async function App() {
         totalMatches;
       newStats_CHAMP_KDAs.push({
         id: newChampionPickDict[key].id,
+        isPlayIn: newChampionPickDict[key].isPlayIn,
         name: key,
         presence: {
           value: presence,
@@ -194,13 +214,33 @@ export default async function App() {
       });
     }
     newStats_CHAMP_KDAs.sort((a, b) => b.presence.value - a.presence.value);
+    return totalMatches;
   } catch (error) {
     console.error('Error fetching data:', error);
+    return -1;
   }
-  return newStats_CHAMP_KDAs.length > 0 ? (
+}
+
+export default async function App() {
+  const response = await fetch(
+    'https://api.sofascore.com/api/v1/unique-tournament/16053/season/54688/events/last/0',
+    { next: { revalidate: 180 } }
+  );
+  const tournamentInfo = await response.json();
+  const tasks: Task[] = [];
+  const tasksWithoutPlayins: Task[] = [];
+
+  const [totalMatches, totalMatchesWithoutPlayins] = await Promise.all([
+    fetchData(tournamentInfo, tasks, false),
+    fetchData(tournamentInfo, tasksWithoutPlayins, true)
+  ]);
+
+  return tasks.length > 0 ? (
     <Main
-      tasks={newStats_CHAMP_KDAs}
+      tasks={tasks}
+      tasksWithoutPlayins={tasksWithoutPlayins}
       totalMatches={totalMatches}
+      totalMatchesWithoutPlayins={totalMatchesWithoutPlayins}
       tournamentInfo={tournamentInfo}
     />
   ) : (
