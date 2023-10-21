@@ -64,7 +64,7 @@ export const columns: ColumnDef<Task>[] = [
   {
     accessorKey: 'pickRate',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Pick/Ban rate" />
+      <DataTableColumnHeader column={column} title="Pick rate" />
     ),
     /** @ts-ignore */
     sortingFn: 'myCustomSorting',
