@@ -193,7 +193,7 @@ export default async function App() {
         }
       });
     }
-    newStats_CHAMP_KDAs.sort((a, b) => b.pickRate.value - a.pickRate.value);
+    newStats_CHAMP_KDAs.sort((a, b) => b.presence.value - a.presence.value);
   } catch (error) {
     console.error('Error fetching data:', error);
   }
