@@ -41,7 +41,7 @@ export const columns: ColumnDef<Task>[] = [
       const pickRate = row.getValue('pickRate') as SubTask;
 
       return (
-        <div className="min-w-max flex items-center mr-3">
+        <div className="min-w-max flex items-center mr-5">
           <span
             className={cn(
               'font-medium mr-1',
