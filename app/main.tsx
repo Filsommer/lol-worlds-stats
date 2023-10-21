@@ -93,7 +93,7 @@ export default function Main({
                       <TooltipTrigger asChild>
                         <Button
                           variant="outline"
-                          className="rounded-full p-0 h-5 w-5 text-secondary-foreground"
+                          className="rounded-full p-0 h-5 w-5 text-secondary-foreground hidden md:flex"
                         >
                           <Info className="h-5" strokeWidth="1.7" />
                         </Button>
