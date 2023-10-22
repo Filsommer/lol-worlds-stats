@@ -56,7 +56,7 @@ function updateDicts(
 }
 
 async function fetchData(
-  tournamentInfo: any,
+  tournamentInfoEvents: any,
   newStats_CHAMP_KDAs: Task[],
   hidePlayins: boolean
 ) {
@@ -82,8 +82,8 @@ async function fetchData(
   try {
     // swiss started october 19th
     const events = hidePlayins
-      ? tournamentInfo.events.filter((e: any) => e.startTimestamp >= 1697691600)
-      : tournamentInfo.events;
+      ? tournamentInfoEvents.filter((e: any) => e.startTimestamp >= 1697691600)
+      : tournamentInfoEvents;
     const promises = events.map(async (e: any) => {
       const response = await fetch(
         `https://api.sofascore.com/api/v1/event/${e.id}/esports-games`,
@@ -221,18 +221,34 @@ async function fetchData(
   }
 }
 
-export default async function App() {
+async function addTournamentEvents(events: any[], page: number) {
   const response = await fetch(
-    'https://api.sofascore.com/api/v1/unique-tournament/16053/season/54688/events/last/0',
+    'https://api.sofascore.com/api/v1/unique-tournament/16053/season/54688/events/last/' +
+      page,
     { next: { revalidate: 180 } }
   );
   const tournamentInfo = await response.json();
+  tournamentInfo.events.forEach((e: any) => {
+    // sofascore has weird sorting
+    if (page === 0) events.push(e);
+    else events.unshift(e);
+  });
+  if (tournamentInfo.hasNextPage) {
+    await addTournamentEvents(events, page + 1);
+  }
+  return;
+}
+
+export default async function App() {
+  const tournamentInfoEvents: any = [];
+  await addTournamentEvents(tournamentInfoEvents, 0);
+
   const tasks: Task[] = [];
   const tasksWithoutPlayins: Task[] = [];
 
   const [totalMatches, totalMatchesWithoutPlayins] = await Promise.all([
-    fetchData(tournamentInfo, tasks, false),
-    fetchData(tournamentInfo, tasksWithoutPlayins, true)
+    fetchData(tournamentInfoEvents, tasks, false),
+    fetchData(tournamentInfoEvents, tasksWithoutPlayins, true)
   ]);
 
   return tasks.length > 0 ? (
@@ -241,7 +257,7 @@ export default async function App() {
       tasksWithoutPlayins={tasksWithoutPlayins}
       totalMatches={totalMatches}
       totalMatchesWithoutPlayins={totalMatchesWithoutPlayins}
-      tournamentInfo={tournamentInfo}
+      tournamentInfoEvents={tournamentInfoEvents}
     />
   ) : (
     <></>

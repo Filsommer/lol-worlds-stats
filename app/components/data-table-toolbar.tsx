@@ -11,12 +11,12 @@ import { DataTableViewOptions } from './data-table-view-options';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
-  tournamentInfo: any;
+  tournamentInfoEvents: any;
 }
 
 export function DataTableToolbar<TData>({
   table,
-  tournamentInfo
+  tournamentInfoEvents
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -56,7 +56,10 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} tournamentInfo={tournamentInfo} />
+      <DataTableViewOptions
+        table={table}
+        tournamentInfoEvents={tournamentInfoEvents}
+      />
     </div>
   );
 }

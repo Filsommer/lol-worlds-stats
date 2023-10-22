@@ -73,13 +73,13 @@ export default function Main({
   tasksWithoutPlayins,
   totalMatches,
   totalMatchesWithoutPlayins,
-  tournamentInfo
+  tournamentInfoEvents
 }: {
   tasks: Task[];
   tasksWithoutPlayins: Task[];
   totalMatches: number;
   totalMatchesWithoutPlayins: number;
-  tournamentInfo: any;
+  tournamentInfoEvents: any;
 }) {
   const [showPlayins, setShowPlayins] = useState(false);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
@@ -158,7 +158,7 @@ export default function Main({
               data={filteredTasks}
               columns={columns}
               totalRows={filteredTasks.length}
-              tournamentInfo={tournamentInfo}
+              tournamentInfoEvents={tournamentInfoEvents}
             />
           </div>
         </>

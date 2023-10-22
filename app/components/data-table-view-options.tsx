@@ -15,42 +15,42 @@ import { Button } from '../../@/components/ui/button';
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
-  tournamentInfo: any;
+  tournamentInfoEvents: any;
 }
 
 export function DataTableViewOptions<TData>({
   table,
-  tournamentInfo
+  tournamentInfoEvents
 }: DataTableViewOptionsProps<TData>) {
-  if (!tournamentInfo) return <></>;
+  if (tournamentInfoEvents.length === 0) return <></>;
 
   return (
     <a
       className="flex flex-col md:flex-row gap-0 md:gap-1 items-center text-sm md:mt-3"
       href={`https://www.sofascore.com/nrg-esports-team-liquid/${
-        tournamentInfo.events.at(-1).customId
-      }#${tournamentInfo.events.at(-1).id}`}
+        tournamentInfoEvents.at(-1).customId
+      }#${tournamentInfoEvents.at(-1).id}`}
       target="_blank"
       rel="noopener noreferrer"
     >
       <div className="text-muted-foreground">
-        {tournamentInfo.events.at(-1).status.type === 'finished'
+        {tournamentInfoEvents.at(-1).status.type === 'finished'
           ? 'Last update: '
           : 'Currently playing: '}
       </div>
       <div className="flex">
         <span className="hidden sm:flex font-medium text-purple-700 mr-1">
-          {tournamentInfo.events.at(-1).homeTeam.shortName}
+          {tournamentInfoEvents.at(-1).homeTeam.shortName}
         </span>
         <span className="sm:hidden font-medium text-purple-700 mr-1">
-          {tournamentInfo.events.at(-1).homeTeam.nameCode}
+          {tournamentInfoEvents.at(-1).homeTeam.nameCode}
         </span>
         <span className="text-muted-foreground mr-1">vs</span>
         <span className="hidden sm:flex font-medium text-purple-700">
-          {tournamentInfo.events.at(-1).awayTeam.shortName}
+          {tournamentInfoEvents.at(-1).awayTeam.shortName}
         </span>
         <span className="sm:hidden font-medium text-purple-700">
-          {tournamentInfo.events.at(-1).awayTeam.nameCode}
+          {tournamentInfoEvents.at(-1).awayTeam.nameCode}
         </span>
       </div>
     </a>
