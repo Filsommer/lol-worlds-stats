@@ -108,6 +108,7 @@ async function fetchData(
         );
         const bansData = await bansResponse.clone().json();
         const isPlayInMatch = e.startTimestamp >= 1697691600; // swiss started october 19th
+        if (!('homeTeamBans' in bansData)) return;
 
         bansData.homeTeamBans.forEach((ban: { name: string; id: string }) => {
           if (ban.name in newChampionPickDict)
